@@ -1,0 +1,1 @@
+function LoadImage(path)	local image = love.graphics.newImage(path);	love.graphics.setColor(255,255,255,255)	love.graphics.draw(path,0,0,0,1,1,image:getWidth()/2,image:getWidth()/2);end
