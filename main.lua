@@ -12,7 +12,8 @@ beat = -1000
 receptor = 0;
 
 tap = 0;
-
+elapsed = 0;
+drawdistance = 100;
 
 function love.load()
 
@@ -69,9 +70,9 @@ function love.update(dt)
 	
 	
 	--if math.ceil(uptime-offset) == 0 then  end;
-	if playing == false then music:play() playing = true end;
+	if playing == false then music:play() music:seek(0,"seconds"); playing = true end;
 	
-	stream = music:tell("seconds")
+	
 	
 	if uptime > -1000 then
 		uptime = uptime+dt
@@ -79,9 +80,10 @@ function love.update(dt)
 	end;
 	
 	
+	stream = music:tell("seconds")
 	
 	
-	beat = ((uptime-offset)/bps*1000)/1000-1;
+	beat = math.ceil((stream-offset)/bps*1000)/1000-1;
 	
 	
 end
@@ -96,12 +98,13 @@ function love.keypressed(key)
 		playing = false
    end
    
+   --[[
    if key == "kp5" then
 		tap = ((60/bpm)*4)-(uptime+offset)
 		tap = math.ceil(tap*10000)/10000
 		if tap > 0 then tap = "+"..tap; end;
    end
-   
+   ]]
 end
 
 
@@ -116,10 +119,9 @@ function love.draw()
 		"fps: "..fps,
 		"bps: "..(math.ceil((bps)*10000)/10000),
 		"\n",
-		"time: "..uptime,
-		"stream: "..stream,
-		"offset: "..tap,
+		"stream: "..math.ceil(stream*1000)/1000,
 		"current bar: "..math.ceil(beat/4),
+		"elapsed "..elapsed,
 	};
 	
 	local info = {
