@@ -12,7 +12,7 @@ uptime = -1000;
 
 beat = -1000
 
-speed = 3;
+speed = 1;
 tap = 0;
 
 measure = 0;
@@ -30,27 +30,40 @@ function reset()
 	
 	
 	songlist = {
-		{	name = "songs/Accept Bloody Fate/Accept Bloody Fate.mp3",
+
+		{	name = "Accept Bloody Fate",
+			extension = ".mp3",
 			bpm = 190,
-			offset =0.480,
+			offset = 0.480,
 		},
-		{	name = "songs/Alte Burg/Alte Burg.ogg",
+		{	name = "Alte Burg",
+			extension = ".ogg",
 			bpm = 180,
-			offset =-0.060,
+			offset = -0.060,
 		},
-		{	name = "songs/Hades The Bloody Rage/Hades The Bloody Rage.ogg",
+		{	name = "Hades The Bloody Rage",
+			extension = ".ogg",
 			bpm = 190,
-			offset =-1.580,
+			offset = -1.580,
+		},
+		{	name = "Kocchi Muite Baby",
+			extension = ".mp3",
+			bpm = 185,
+			offset = -2.760,
 		},
 	};	
 	
 	song = math.random(1,#songlist);
 
-		music = love.audio.newSource(songlist[song].name)
+		local str = "songs/"..songlist[song].name.."/"..songlist[song].name
+		music = love.audio.newSource(str..songlist[song].extension);
 		bpm = songlist[song].bpm;
 		offset = songlist[song].offset;
+		step = str..".ssc";
 	
 	bps = 60/bpm;
+	
+	BuildNotes()
 
 end;
 
@@ -87,7 +100,7 @@ end
 function love.keypressed(key) 
    
    if key == " " then
-		uptime = 0+offset;
+		uptime = 0-offset;
 		music:stop();
 		reset()
 		playing = false
@@ -108,8 +121,8 @@ end
 
 
 function love.draw()
-	
-	DrawNotefield();
+
+	if notes then DrawNotefield(); end
 	
 	local debugger = {
 		"delta: "..delta,
@@ -118,6 +131,7 @@ function love.draw()
 		"\n",
 		"uptime "..math.ceil(uptime*1000)/1000,
 		"stream: "..math.ceil(stream*1000)/1000,
+		"elapsed: "..elapsed,
 	};
 	
 	local info = {
@@ -127,8 +141,10 @@ function love.draw()
 	};
 	
 	
-	love.graphics.setColor(255,255,255,255)
+	love.graphics.setColor(255,255,255,150)
 	love.graphics.print(table.concat(debugger,"\n"),10,10)
 	love.graphics.printf(table.concat(info,"\n"),SCREEN_RIGHT-310, 10, 300, "right");
+	
+	
 	
 end;

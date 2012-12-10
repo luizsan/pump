@@ -8,50 +8,17 @@ function DrawNotefield()
 	love.graphics.line(SCREEN_CENTER_X-140,receptor,SCREEN_CENTER_X+140,receptor);
 	
 	
-	local beat = math.ceil((uptime-offset)/bps*1000)/1000;
-	local elapsed = math.ceil(beat/4);
-	local visible = 128*speed*bps;
-	
-	
+	beat = math.ceil((uptime-offset)/bps*1000)/1000;
+	elapsed = math.ceil((beat)/4);
+	local visible = math.ceil(128/speed*bps);
+	local negative = -32
 	
 	--visible beats
 	for k=0,visible-1 do
-		DrawBeat(-20+k*4+(elapsed*4))
+		DrawBeat(negative+k*4+(elapsed*4))
 	end
-		
---[[
-	for n=8,300 do
-		for i=1,numcolumns do
-		DrawNote(n,i);
-		end
-	end
-	]]
-	
+
 end;	
-
-
-function DrawNote(beat,button)
-	
-	local notebutton;
-	if not button then sButton = 3 else sButton = button end;
-	
-	local notecolumn = 0;
-	
-	if sButton == 1 then notebutton = DL;  notecolumn = columnspacing*-2;
-	elseif sButton == 2 then notebutton = UL; notecolumn = columnspacing*-1;
-	elseif sButton == 3 then notebutton = C; notecolumn = 0;
-	elseif sButton == 4 then notebutton = UR;  notecolumn = columnspacing*1;
-	elseif sButton == 5 then notebutton = DR;  notecolumn = columnspacing*2;
-	end;
-	
-	local beatseconds = ((beat)*(bps))
-	local remaining = beatseconds-(uptime+offset);
-	local ypos = (remaining)*(bpm/60)*(arrowspacing*0.75*speed);
-	
-	love.graphics.setColor(255,255,255,150); 
-	notebutton:draw(SCREEN_CENTER_X+notecolumn-32,ypos+32);
-	
-end;
 
 
 function DrawBeat(index)
@@ -63,20 +30,67 @@ function DrawBeat(index)
 			local measure = math.ceil((i+index)/4);
 			local curbeat = math.ceil(i+index)
 			
-			local ypos = (remaining)*(bpm/60)*(arrowspacing*0.75*speed)
+			local ypos = (remaining)*(bpm/60)*(arrowspacing*0.8*speed)
 			if ypos > SCREEN_TOP-receptor-drawdistance and ypos < SCREEN_BOTTOM+drawdistance then
 
 				if quarter then 
-					love.graphics.setColor(255,255,255,150); 
+					love.graphics.setColor(255,255,255,255); 
 					--love.graphics.print(math.ceil(remaining*1000)/1000,SCREEN_CENTER_X-100,receptor+ypos+2)
 				else 
-					love.graphics.setColor(100,200,255,75); 
+					love.graphics.setColor(100,200,255,255); 
 				end;
 				
-				love.graphics.print(curbeat,SCREEN_CENTER_X-100,receptor+ypos+2)
+				love.graphics.print(curbeat.."  -  "..index,SCREEN_CENTER_X-100,receptor+ypos+2)
 				love.graphics.line(SCREEN_CENTER_X-100,receptor+ypos,SCREEN_CENTER_X+100,receptor+ypos);
 			end
 	--end of for	
 	end;
+	
+	
+	local bar = (index/4)+2;
+	--draw notes inside of measure
+	if notes[bar] then --if measure exists
+	
+		for n=1,#notes[bar] do --gets note rows inside of measure (string table)
+			for c=1,numcolumns do --draw columns
+				if tonumber(string.sub(notes[bar][n],c,c)) ~= 0 then
+					DrawNote(index+((n-1)/(#notes[bar])*4),1,c);
+				end;
+			end;
+		end;
+		
+	end;
+	
+	
 --end of function
+end;
+
+
+function DrawNote(beat,button,column)	
+	if button == 0 then return end; 
+	
+	local notebutton;
+	beat = tonumber(beat);
+	
+	if column > 5 then column = column-5 end;
+	local notecolumn = 0;
+	
+	if column == 1 then notebutton = DL;  notecolumn = columnspacing*-2;
+	elseif column == 2 then notebutton = UL; notecolumn = columnspacing*-1;
+	elseif column == 3 then notebutton = C; notecolumn = 0;
+	elseif column == 4 then notebutton = UR;  notecolumn = columnspacing*1;
+	elseif column == 5 then notebutton = DR;  notecolumn = columnspacing*2;
+	end;
+	
+	
+	
+	local beatseconds = ((beat)*(bps))
+	local remaining = beatseconds-(uptime+offset);
+	local ypos = (remaining)*(bpm/60)*(arrowspacing*0.8*speed);
+	
+	love.graphics.setColor(255,255,255,255); 
+	
+	if column~=0 and ypos > SCREEN_TOP-receptor-drawdistance and ypos < SCREEN_BOTTOM+drawdistance then
+		notebutton:draw(SCREEN_CENTER_X+notecolumn-32,ypos+32);
+	end;
 end;
