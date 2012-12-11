@@ -1,5 +1,4 @@
 function LoadSongs()
-
 	local songs = {}
 	local dirs = love.filesystem.enumerate(love.filesystem.getWorkingDirectory())
 	
@@ -10,5 +9,4 @@ function LoadSongs()
 	end
 
 	return songs;
-
 end;

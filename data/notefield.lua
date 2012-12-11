@@ -2,7 +2,6 @@ local columnspacing = 48;
 local numcolumns = 5;
 
 function DrawNotefield()
-	
 	--draw "receptor"
 	love.graphics.setColor(30,200,255,255)
 	love.graphics.line(SCREEN_CENTER_X-140,receptor,SCREEN_CENTER_X+140,receptor);
@@ -17,40 +16,36 @@ function DrawNotefield()
 	for k=0,visible-1 do
 		DrawBeat(negative+k*4+(elapsed*4))
 	end
-
-end;	
-
+end;
 
 function DrawBeat(index)
 	--number of beats. 0 = white; 1, 2, 3 = blue;
 	for i=0,3 do
-			local quarter = math.ceil(i/4) == (i/4);
-			local beatseconds = ((i+index)*(bps))
-			local remaining = beatseconds-(uptime+offset);
-			local measure = math.ceil((i+index)/4);
-			local curbeat = math.ceil(i+index)
+		local quarter = math.ceil(i/4) == (i/4);
+		local beatseconds = ((i+index)*(bps))
+		local remaining = beatseconds-(uptime+offset);
+		local measure = math.ceil((i+index)/4);
+		local curbeat = math.ceil(i+index)
+		
+		local ypos = (remaining)*(bpm/60)*(arrowspacing*0.8*speed)
+		if ypos > SCREEN_TOP-receptor-drawdistance and ypos < SCREEN_BOTTOM+drawdistance then
+			if quarter then 
+				love.graphics.setColor(255,255,255,255); 
+				--love.graphics.print(math.ceil(remaining*1000)/1000,SCREEN_CENTER_X-100,receptor+ypos+2)
+			else 
+				love.graphics.setColor(100,200,255,255); 
+			end;
 			
-			local ypos = (remaining)*(bpm/60)*(arrowspacing*0.8*speed)
-			if ypos > SCREEN_TOP-receptor-drawdistance and ypos < SCREEN_BOTTOM+drawdistance then
-
-				if quarter then 
-					love.graphics.setColor(255,255,255,255); 
-					--love.graphics.print(math.ceil(remaining*1000)/1000,SCREEN_CENTER_X-100,receptor+ypos+2)
-				else 
-					love.graphics.setColor(100,200,255,255); 
-				end;
-				
-				love.graphics.print(curbeat.."  -  "..index,SCREEN_CENTER_X-100,receptor+ypos+2)
-				love.graphics.line(SCREEN_CENTER_X-100,receptor+ypos,SCREEN_CENTER_X+100,receptor+ypos);
-			end
+			love.graphics.print(curbeat.."  -  "..index,SCREEN_CENTER_X-100,receptor+ypos+2)
+			love.graphics.line(SCREEN_CENTER_X-100,receptor+ypos,SCREEN_CENTER_X+100,receptor+ypos);
+		end
 	--end of for	
 	end;
 	
-	
 	local bar = (index/4)+2;
+
 	--draw notes inside of measure
 	if notes[bar] then --if measure exists
-	
 		for n=1,#notes[bar] do --gets note rows inside of measure (string table)
 			for c=1,numcolumns do --draw columns
 				if tonumber(string.sub(notes[bar][n],c,c)) ~= 0 then
@@ -58,10 +53,7 @@ function DrawBeat(index)
 				end;
 			end;
 		end;
-		
 	end;
-	
-	
 --end of function
 end;
 
@@ -81,8 +73,6 @@ function DrawNote(beat,button,column)
 	elseif column == 4 then notebutton = UR;  notecolumn = columnspacing*1;
 	elseif column == 5 then notebutton = DR;  notecolumn = columnspacing*2;
 	end;
-	
-	
 	
 	local beatseconds = ((beat)*(bps))
 	local remaining = beatseconds-(uptime+offset);
