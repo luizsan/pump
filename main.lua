@@ -1,10 +1,28 @@
 require("data/constants");
 require("data/songs");
 require("data/gameplay");
-
+--
 require("sys/util");
 
-Fonts = {};
+Content = {};
+Content.Fonts = {};
+
+Game = {
+	debug	= false,
+	playing	= false,
+	delta	= 0,
+	fps		= 0,
+	uptime	= -1000,
+	beat	= -1000
+};
+
+Player = {
+	Speed	= 1,
+	Tap		= 0,
+	Measure	= 0
+};
+
+Songs = nil
 
 debug = true;
 playing = false;
@@ -17,13 +35,13 @@ tap = 0;
 measure = 0;
 
 function love.load()
-	allsongs = LoadSongs();
-	Fonts["Mono"] = love.graphics.newFont("fonts/DejaVuSansMono.ttf", 11);
-	love.graphics.setFont( Fonts.Mono );
-	reset();
+	Songs = LoadSongs();
+	Content.Fonts["Mono"] = love.graphics.newFont("fonts/DejaVuSansMono.ttf", 11);
+	love.graphics.setFont( Content.Fonts["Mono"] );
+	ResetGame();
 end;
 
-function reset()
+function ResetGame()
 	songlist = {
 		{	name = "Accept Bloody Fate",
 			extension = ".mp3",
@@ -78,33 +96,34 @@ function love.update(dt)
 end
 
 function love.keypressed(key) 
+	-- quit
 	if key == "escape" then
-	love.event.push('quit');
+		love.event.push('quit');
 	end
-
+	-- reset / reroll song
 	if key == " " then
 		uptime = 0-offset;
 		music:stop();
-		reset()
+		ResetGame()
 		playing = false
 	end
-
+	-- debug
 	if key == "`" then
 		debug = not debug;
 	end 
-
+	-- Speed Down 
 	if key == "kp7" then
 		speed = speed - 1/8
 	end
-
+	-- Speed Up
 	if key == "kp8" then
 		speed = speed + 1/8;
 	end
-
+	-- Speed Reset
 	if key == "kp9" then
 		speed = 1;
 	end
-
+	-- Pause
 	if key == "kp5" then
 		--tap = ((60/bpm)*4)-(uptime+offset)
 		--tap = math.ceil(tap*10000)/10000
@@ -114,30 +133,23 @@ function love.keypressed(key)
 end
 
 function love.draw()
-	if notes then DrawNotefield(); end
+	if notes then 
+		DrawNotefield();
+	end
 	if debug then
-		local debugger = {
-			"delta: "..delta,
-			"fps: "..fps,
-			"bps: "..(math.ceil((bps)*10000)/10000),
-			"\n",
-			"uptime "..math.ceil(uptime*1000)/1000,
-			"stream: "..math.ceil(stream*1000)/1000,
-			"elapsed: "..elapsed,
+		local Stats = {
+			Delta		= delta,
+			FPS			= fps,
+			BPS			= (math.ceil((bps)*10000)/10000),
+			Uptime		= math.ceil(uptime*1000)/1000,
+			Stream		= math.ceil(stream*1000)/1000,
+			Elapsed		= elapsed,
+			SongName	= songlist[song].name,
+			SongBPM		= songlist[song].bpm,
+			SongOffset	= songlist[song].offset,
 		};
-	
-		local info = {
-			songlist[song].name,
-			songlist[song].bpm,
-			songlist[song].offset,
-		};
-	
+		
 		love.graphics.setColor(255,255,255,192)
-		--[[ 
-		love.graphics.print(table.concat(debugger,"\n"),10,10)
-		love.graphics.printf(table.concat(info,"\n"),SCREEN_RIGHT-310, 10, 300, "right");
-		]]
-		-- new ugly one
 		love.graphics.printf(string.format(
 			"Delta__: %03.04f\n" ..
 			"FPS____: %03i\n" ..
@@ -151,7 +163,7 @@ function love.draw()
 			"OFFSET_: %03.04f\n" ..
 			"------------------\n" ..
 			"SPEED__: %03.04f",
-			delta, fps, (math.ceil((bps)*10000)/10000), math.ceil(uptime*1000)/1000, math.ceil(stream*1000)/1000, elapsed, info[1], info[2], info[3], speed),
+			Stats.Delta, Stats.FPS, Stats.BPS, Stats.Uptime, Stats.Stream, Stats.Elapsed, Stats.SongName, Stats.SongBPM, Stats.SongOffset, speed),
 			SCREEN_LEFT+16, 16, 300, "left");
 	end
 end;

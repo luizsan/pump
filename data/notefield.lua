@@ -36,7 +36,7 @@ function DrawBeat(index)
 				love.graphics.setColor(100,200,255,255); 
 			end;
 			
-			love.graphics.print(curbeat.."  -  "..index,SCREEN_CENTER_X-100,receptor+ypos+2)
+			love.graphics.print(string.format("%i [%i]", curbeat, index),SCREEN_CENTER_X-100,receptor+ypos+2)
 			love.graphics.line(SCREEN_CENTER_X-100,receptor+ypos,SCREEN_CENTER_X+100,receptor+ypos);
 		end
 	--end of for	
