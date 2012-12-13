@@ -18,8 +18,8 @@ Game = {
 
 Player = {
 	Speed	= 1,
-	Tap		= 0,
-	Measure	= 0
+	Tap = 0,
+	Measure = 0
 };
 
 Songs = nil
@@ -30,9 +30,10 @@ delta = 0;
 fps = 0;
 uptime = -1000;
 beat = -1000
-speed = 1;
+speed = 3;
 tap = 0;
 measure = 0;
+
 
 function love.load()
 	Songs = LoadSongs();
@@ -42,12 +43,8 @@ function love.load()
 end;
 
 function ResetGame()
+	
 	songlist = {
-		{	name = "Accept Bloody Fate",
-			extension = ".mp3",
-			bpm = 190,
-			offset = 0.480,
-		},
 		{	name = "Alte Burg",
 			extension = ".ogg",
 			bpm = 180,
@@ -63,6 +60,27 @@ function ResetGame()
 			bpm = 185,
 			offset = -2.760,
 		},
+		{	name = "Unique",
+			extension = ".mp3",
+			bpm = 145,
+			offset = -0.700,
+		},
+		{	name = "Sudden Death R99",
+			extension = ".mp3",
+			bpm = 190,
+			offset = 1.040,
+		},
+		{	name = "Crossing Field",
+			extension = ".ogg",
+			bpm = 179,
+			offset = 0.015,
+		},
+		{	name = "Alice in Black Market",
+			extension = ".mp3",
+			bpm = 176,
+			offset = 0.460,
+		},
+		
 	};	
 	
 	song = math.random(1,#songlist);
@@ -72,6 +90,7 @@ function ResetGame()
 	bpm = songlist[song].bpm;
 	offset = songlist[song].offset;
 	step = str..".ssc";
+
 	
 	bps = 60/bpm;
 	
@@ -82,14 +101,23 @@ end;
 function love.update(dt)
 	delta = dt;
 	fps = love.timer.getFPS();
+
+	if playing == false then 
 	
-	--if math.ceil(uptime-offset) == 0 then  end;
-	if playing == false and uptime >= 0 then uptime = 0; music:play() music:seek(0,"seconds"); playing = true end;
-	
-	if uptime > -1000 and not music:isPaused() then
-		uptime = uptime+dt
-		uptime = math.ceil(uptime*100000)/100000
+		if offset > 0 and uptime >= offset then
+			music:play() 
+			music:seek(0,"seconds");
+			playing = true 
+		elseif offset < 0 and uptime >= 0 then
+			music:play() 
+			music:seek(offset*-1,"seconds");
+			playing = true 
+		end;
+		
 	end;
+	
+	
+	if uptime > -1000 and not music:isPaused() then uptime = uptime+dt end;
 	
 	stream = music:tell("seconds")
 
@@ -102,7 +130,7 @@ function love.keypressed(key)
 	end
 	-- reset / reroll song
 	if key == " " then
-		uptime = 0-offset;
+		uptime = -1;
 		music:stop();
 		ResetGame()
 		playing = false
@@ -112,7 +140,7 @@ function love.keypressed(key)
 		debug = not debug;
 	end 
 	-- Speed Down 
-	if key == "kp7" then
+	if key == "kp7" and speed > 1/8 then
 		speed = speed - 1/8
 	end
 	-- Speed Up
@@ -125,9 +153,6 @@ function love.keypressed(key)
 	end
 	-- Pause
 	if key == "kp5" then
-		--tap = ((60/bpm)*4)-(uptime+offset)
-		--tap = math.ceil(tap*10000)/10000
-		--if tap > 0 then tap = "+"..tap; end;
 		if music:isPaused() then music:play(); else music:pause(); end;
 	end
 end
@@ -141,29 +166,31 @@ function love.draw()
 			Delta		= delta,
 			FPS			= fps,
 			BPS			= (math.ceil((bps)*10000)/10000),
-			Uptime		= math.ceil(uptime*1000)/1000,
+			uptime		= math.ceil(uptime*1000)/1000,
 			Stream		= math.ceil(stream*1000)/1000,
 			Elapsed		= elapsed,
 			SongName	= songlist[song].name,
 			SongBPM		= songlist[song].bpm,
 			SongOffset	= songlist[song].offset,
+			Beat			= beat,
 		};
 		
 		love.graphics.setColor(255,255,255,192)
 		love.graphics.printf(string.format(
-			"Delta__: %03.04f\n" ..
-			"FPS____: %03i\n" ..
-			"BPS____: %03.04f\n" ..
-			"Uptime_: %03.04f\n" ..
-			"Stream_: %03.04f\n" ..
-			"Elapsed: %03.04f\n" ..
+			"Delta___: %03.04f\n" ..
+			"FPS_____: %03i\n" ..
+			"BPS_____: %03.04f\n" ..
+			"Uptime__: %03.04f\n" ..
+			"Stream__: %03.04f\n" ..
+			"Elapsed_: %03.04f\n" ..
+			"Beat____: %03i\n" ..
 			"------------------\n" ..
-			"NAME___: %s\n"      ..
-			"BPM____: %03.04f\n" ..
-			"OFFSET_: %03.04f\n" ..
+			"NAME____: %s\n"      ..
+			"BPM_____: %03.04f\n" ..
+			"OFFSET__: %03.04f\n" ..
 			"------------------\n" ..
-			"SPEED__: %03.04f",
-			Stats.Delta, Stats.FPS, Stats.BPS, Stats.Uptime, Stats.Stream, Stats.Elapsed, Stats.SongName, Stats.SongBPM, Stats.SongOffset, speed),
-			SCREEN_LEFT+16, 16, 300, "left");
+			"SPEED___: %03.04f",
+			Stats.Delta, Stats.FPS, Stats.BPS, Stats.uptime, Stats.Stream, Stats.Elapsed, Stats.Beat, Stats.SongName, Stats.SongBPM, Stats.SongOffset, speed),
+			SCREEN_LEFT+12, 12, 300, "left");
 	end
 end;
